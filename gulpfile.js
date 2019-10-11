@@ -1,115 +1,109 @@
-//要想使用gulp提供的功能，首先要将gulp引入到当前文件中
-const cuijn_gulp = require('gulp');
-const del = require('del')
-const sprite = require('gulp.spritesmith')
+//若想使用gulp提供的功能,首先要将gulp引入到当前文件中
+const a_gulp = require('gulp')
+ const del = require('del')
+ const sprite = require('gulp.spritesmith')
 
-//gulp是一个基于task(任务)的构建工具，我们需要在执行构建步骤时，先创建任务
-// cuijn_gulp.task('任务名称', 回调函数)
+//gulp是一个基于task(任务)的构建工具,我们需要在执行构建步骤时,先创建任务
+//a_gulp.task('任务名称',回调函数)
 
 // async function testTask() {
-//     console.log('测试环境配置是否成功');
+//     console.log('测试环境配置是否成功')
 // }
-
-// cuijn_gulp.task('test', testTask);
-
-async function copyIndex() {
-    cuijn_gulp.src('./src/index.html')
-        .pipe(cuijn_gulp.dest('./build'))
-}
-
-cuijn_gulp.task('copy-index', copyIndex)
+// a_gulp.task('test',testTask)
+async function copyIndex(){
+    a_gulp.src('./src/index.html')//当前路径
+    .pipe(a_gulp.dest('./dist'))//连接管道到文件夹dist
+} 
+a_gulp.task('copy-index',copyIndex)//任务处理
 
 async function copyHtml() {
-    cuijn_gulp.src('./src/html/*.html')
-        .pipe(cuijn_gulp.dest('./build/html'))
+    a_gulp.src('./src/html/*.html')
+            .pipe(a_gulp.dest('./dist/html') )
 }
-
-cuijn_gulp.task('copy-html', copyHtml)
+a_gulp.task('copy-html',copyHtml)
 
 async function copyImg() {
-    // 路径中的**，代表将文件夹下的路径结构，整体拷贝走
-    cuijn_gulp.src('./src/assets/img/**/*.{jpg,gif,png}')
-        .pipe(cuijn_gulp.dest('./build/assets/img'))
+    a_gulp.src('./src/assets/img/**/*.{jpg,gif,png}')//** 意思是img下的所有路径结构整体操作
+            .pipe(a_gulp.dest('./dist/assets/img'))
+
 }
-
-cuijn_gulp.task('copy-img', copyImg)
-
+a_gulp.task('copy-img',copyImg)
 
 async function copyLib() {
-    cuijn_gulp.src('./src/lib/**/*.*')
-        .pipe(cuijn_gulp.dest('./build/lib'))
+    a_gulp.src('./src/lib/**/*.*')
+            .pipe(a_gulp.dest('./dist/lib'))
 }
+a_gulp.task('copy-lib',copyLib)
 
-cuijn_gulp.task('copy-lib', copyLib)
+// a_gulp.parallel()//返回一个新函数,该新函数会并行的执行被合并的任务
+var copyAll = a_gulp.parallel(copyIndex,copyHtml,copyImg,copyLib)
+a_gulp.task('copy',copyAll)
 
-// cuijn_gulp.parallel()返回一个新函数，该新函数会并行的执行被合并的任务
-var copyAll = cuijn_gulp.parallel(copyIndex, copyHtml, copyImg, copyLib)
-cuijn_gulp.task('copy', copyAll);
-
-//编译sass这件事，gulp自己是无法实现的，需要依赖插件
-//gulp-sass gulp-sass要使用node-sass来编译scss文件
-//使用插件的步骤：
-//  1. 安装插件【npm Install 插件名】
-//  2. 将插件引入到gulpfile.js中
+//编译sass这件事,gulp自己是无法实现的,需要依赖插件
+//gulp-sass gulp-sass要使用nade-sass来编译scss文件
+//使用插件的步骤
+//1.安装插件 [npm Install 插件名]
+//2.将插件引入到gulpfile.js中
 var sass = require('gulp-sass');
 
-async function sassTask() {
-    cuijn_gulp.src('./src/style/**/*.scss')
-        .pipe(sass({
-            outputStyle: "compressed"
-        }))
-        .pipe(cuijn_gulp.dest('./build/css/'))
+async function  sassTask() {
+    a_gulp.src('./src/style/**/*.scss')
+    .pipe(sass({
+        outputStyle:"compressed"
+    }))
+    .pipe(a_gulp.dest('./dist/css/'))
 }
-
-cuijn_gulp.task('sass', sassTask)
-//  3. 使用引入后的插件
-
-const babel = require('gulp-babel')
-const concat = require('gulp-concat')
-const uglify = require('gulp-uglify')
-async function homeJS() {
-    //将home下的所有jS文件进行合并，之后再babel编译
+    a_gulp.task('sass',sassTask)
+//3.使用引入后的插件
+const babel = require('gulp-babel')//es6转es5需下载下面这个插件
+//npm install gulp-babel @babel/core @babel/preset-env//安装插件
+const concat = require('gulp-concat')//整合
+ const uglify = require('gulp-uglify')//压成一行
+async function homeJS(){
+    //将home下的所有js文件进行合并,之后再babel编译
     //合并需要使用插件gulp-concat
-    cuijn_gulp.src('./src/js/home/**/*.js')
-        .pipe(concat("home.js"))
+    a_gulp.src('./src/js/home/**/*.js')
+        .pipe(concat("home.js"))//整合到取的文件名
         .pipe(babel({
-            presets: ['@babel/env']
+            presets:['@babel/env']
+            
         }))
-        //编译到ES5后，要进行压缩
+        //编译到ES5后要进行压缩
         //借助插件gulp-uglify
-        .pipe(uglify())
-        .pipe(cuijn_gulp.dest('./build/js/home'))
+          .pipe(uglify())
+        .pipe(a_gulp.dest('./dist/js/home'))
 }
+a_gulp.task('js-home',homeJS)
 
-cuijn_gulp.task('js-home', homeJS)
-// 
+
 
 async function spriteCreate() {
-    cuijn_gulp.src('./src/assets/icons/**/*.png')
-        .pipe(sprite({
-            imgName: "精灵图.png",
-            cssName: "精灵图.css"
-        }))
-        .pipe(cuijn_gulp.dest('./build/assets/icons'))
+    a_gulp.src('./src/assets/icons/**/*.png')
+    .pipe(sprite({
+         imgName:"精灵图.png",
+         cssName:"精灵图.css"
+    }))
+    .pipe(a_gulp.dest('./dist/assets/icons'))
 }
+a_gulp.task('sprite',spriteCreate)
 
-cuijn_gulp.task('sprite', spriteCreate)
 
-var build = cuijn_gulp.series(clean, cuijn_gulp.parallel(homeJS, sassTask, copyAll))
-cuijn_gulp.task('build', build)
 
-function clean() {
-    return del(['build'])
+var dist = a_gulp.parallel(homeJS,sassTask,copyAll)
+a_gulp.task('dist',dist)
+
+/*function clean() {
+    return del(['dist'])
 }
-
-function watch() {
-    cuijn_gulp.watch('./src/index.html', copyIndex)
-    cuijn_gulp.watch('./src/assets/img/**/*.{jpg,png,gif,jpeg}', copyImg)
-    cuijn_gulp.watch('./src/html/*.html', copyHtml)
-    cuijn_gulp.watch('./src/lib/**/*.*', copyLib)
-    cuijn_gulp.watch('./src/style/**/*.scss', sassTask)
-    cuijn_gulp.watch('./src/js/home/**/*.js', homeJS)
+var dist = a_gulp.series(clean)
+a_gulp.task('dist',dist)*/  //删除，清理
+function watch(){
+    a_gulp.watch('./src/index.html',copyIndex)
+    a_gulp.watch('./src/assets/img/**/*.{jpg,png,gif,jpeg',copyImg)
+    a_gulp.watch('./src/html/*.html',copyHtml)
+    a_gulp.watch('./src/lib/**/*.*',copyLib)
+    a_gulp.watch('./src/style/**/*.scss',sassTask)
+    a_gulp.watch('./src/js/home/**/*.js',homeJS)
 }
-
-cuijn_gulp.task('watch', watch)
-
+a_gulp.task('watch',watch)
+//get三个区域  工作区 暂存区 版本区
